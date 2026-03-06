@@ -43,42 +43,25 @@ export function SpeedTest() {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        // Use Cloudflare's trace endpoint (free, works over HTTPS)
+        // Use ipwho.is (free, works over HTTPS, no API key required)
         const response = await fetch(
-          "https://cloudflare.com/cdn-cgi/trace",
+          "https://ipwho.is/",
           { signal: AbortSignal.timeout(5000) }
         );
-        const text = await response.text();
-        console.log("Location API response:", text);
+        const data = await response.json();
+        console.log("Location API response:", data);
         
-        // Parse the plain text response
-        const lines = text.split('\n');
-        const data: Record<string, string> = {};
-        for (const line of lines) {
-          const [key, value] = line.split('=');
-          if (key && value) {
-            data[key] = value;
-          }
-        }
-        
-        if (data.ip && data.ip !== '') {
-          // Get ISP info from Cloudflare data
-          const isp = data.isp || data.org || "Unknown";
-          
-          // Cloudflare only provides coordinates, not city/country names
-          // Show coordinates as location
-          const locationStr = data.loc || "Unknown";
-          
+        if (data.success) {
           setLocation({
             ip: data.ip || "N/A",
-            city: locationStr,
-            country: "Coordinates",
-            isp: isp,
-            org: data.org || "",
-            as: data.as || "",
+            city: data.city || "Unknown",
+            country: data.country || "Unknown",
+            isp: data.connection?.isp || data.isp || "Unknown",
+            org: data.connection?.org || "",
+            as: data.connection?.asn?.toString() || "",
           });
         } else {
-          console.error("Location API error: No IP returned");
+          console.error("Location API error:", data.message);
         }
       } catch (error) {
         console.error("Failed to fetch location:", error);
