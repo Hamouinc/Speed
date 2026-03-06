@@ -1,11 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 interface TestResult {
   ping: number | null;
   download: number | null;
   upload: number | null;
+}
+
+interface LocationInfo {
+  ip: string;
+  city: string;
+  country: string;
+  isp: string;
+  org: string;
+  as: string;
 }
 
 type TestPhase = "idle" | "ping" | "download" | "upload" | "complete";
@@ -27,6 +36,35 @@ export function SpeedTest() {
     upload: null,
   });
   const [currentSpeed, setCurrentSpeed] = useState(0);
+  const [location, setLocation] = useState<LocationInfo | null>(null);
+  const [locationLoading, setLocationLoading] = useState(true);
+
+  // Fetch location info on mount
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const response = await fetch(
+          "https://ip-api.com/json/?fields=status,message,country,countryCode,regionName,city,isp,org,as,query"
+        );
+        const data = await response.json();
+        if (data.status === "success") {
+          setLocation({
+            ip: data.query,
+            city: data.city,
+            country: data.countryCode,
+            isp: data.isp,
+            org: data.org,
+            as: data.as,
+          });
+        }
+      } catch {
+        // Keep location as null if fetch fails
+      } finally {
+        setLocationLoading(false);
+      }
+    };
+    fetchLocation();
+  }, []);
 
   const measurePing = useCallback(async (): Promise<number> => {
     const times: number[] = [];
@@ -180,10 +218,44 @@ export function SpeedTest() {
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
       <div className="bg-neutral-800 rounded-3xl p-8 shadow-2xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Speed Test</h1>
-          <p className="text-neutral-400">Test your internet connection speed</p>
+        {/* Location & ISP Info */}
+        <div className="bg-neutral-700/50 rounded-2xl p-4 mb-6">
+          {locationLoading ? (
+            <div className="flex items-center justify-center gap-2 text-neutral-400">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-sm">Detecting location...</span>
+            </div>
+          ) : location ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-sm">Location</span>
+                <span className="text-white font-medium">
+                  {location.city}, {location.country}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-sm">ISP</span>
+                <span className="text-white font-medium truncate max-w-[200px]" title={location.isp}>
+                  {location.isp}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-sm">Server</span>
+                <span className="text-white font-medium">Cloudflare</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-sm">IP</span>
+                <span className="text-white font-mono text-sm">{location.ip}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center text-neutral-400 text-sm">
+              Location unavailable
+            </div>
+          )}
         </div>
 
         {/* Speed Display */}
