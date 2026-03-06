@@ -43,25 +43,25 @@ export function SpeedTest() {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        // Use ipwho.is (free, works over HTTPS, no API key required)
+        // Use geojs.io (free, works over HTTPS, no API key required, no CORS issues)
         const response = await fetch(
-          "https://ipwho.is/",
+          "https://get.geojs.io/v1/ip/geo.json",
           { signal: AbortSignal.timeout(5000) }
         );
         const data = await response.json();
         console.log("Location API response:", data);
         
-        if (data.success) {
+        if (data.ip) {
           setLocation({
             ip: data.ip || "N/A",
             city: data.city || "Unknown",
             country: data.country || "Unknown",
-            isp: data.connection?.isp || data.isp || "Unknown",
-            org: data.connection?.org || "",
-            as: data.connection?.asn?.toString() || "",
+            isp: data.organization_name || data.organization || "Unknown",
+            org: data.organization_name || "",
+            as: data.asn?.toString() || "",
           });
         } else {
-          console.error("Location API error:", data.message);
+          console.error("Location API error: Invalid response format");
         }
       } catch (error) {
         console.error("Failed to fetch location:", error);
