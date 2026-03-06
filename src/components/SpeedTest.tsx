@@ -43,25 +43,42 @@ export function SpeedTest() {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        // Try ip-api.com first (free, no API key needed)
+        // Use Cloudflare's trace endpoint (free, works over HTTPS)
         const response = await fetch(
-          "https://ip-api.com/json/?fields=status,message,country,countryCode,regionName,city,isp,org,as,query",
+          "https://cloudflare.com/cdn-cgi/trace",
           { signal: AbortSignal.timeout(5000) }
         );
-        const data = await response.json();
-        console.log("Location API response:", data);
+        const text = await response.text();
+        console.log("Location API response:", text);
         
-        if (data.status === "success" && data.query) {
+        // Parse the plain text response
+        const lines = text.split('\n');
+        const data: Record<string, string> = {};
+        for (const line of lines) {
+          const [key, value] = line.split('=');
+          if (key && value) {
+            data[key] = value;
+          }
+        }
+        
+        if (data.ip && data.ip !== '') {
+          // Get ISP info from Cloudflare data
+          const isp = data.isp || data.org || "Unknown";
+          
+          // Cloudflare only provides coordinates, not city/country names
+          // Show coordinates as location
+          const locationStr = data.loc || "Unknown";
+          
           setLocation({
-            ip: data.query || "N/A",
-            city: data.city || "Unknown",
-            country: data.countryCode || "N/A",
-            isp: data.isp || data.org || "Unknown",
+            ip: data.ip || "N/A",
+            city: locationStr,
+            country: "Coordinates",
+            isp: isp,
             org: data.org || "",
             as: data.as || "",
           });
         } else {
-          console.error("Location API error:", data.message);
+          console.error("Location API error: No IP returned");
         }
       } catch (error) {
         console.error("Failed to fetch location:", error);
