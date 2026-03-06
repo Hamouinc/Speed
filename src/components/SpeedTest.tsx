@@ -43,22 +43,28 @@ export function SpeedTest() {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
+        // Try ip-api.com first (free, no API key needed)
         const response = await fetch(
-          "https://ip-api.com/json/?fields=status,message,country,countryCode,regionName,city,isp,org,as,query"
+          "https://ip-api.com/json/?fields=status,message,country,countryCode,regionName,city,isp,org,as,query",
+          { signal: AbortSignal.timeout(5000) }
         );
         const data = await response.json();
-        if (data.status === "success") {
+        console.log("Location API response:", data);
+        
+        if (data.status === "success" && data.query) {
           setLocation({
-            ip: data.query,
-            city: data.city,
-            country: data.countryCode,
-            isp: data.isp,
-            org: data.org,
-            as: data.as,
+            ip: data.query || "N/A",
+            city: data.city || "Unknown",
+            country: data.countryCode || "N/A",
+            isp: data.isp || data.org || "Unknown",
+            org: data.org || "",
+            as: data.as || "",
           });
+        } else {
+          console.error("Location API error:", data.message);
         }
-      } catch {
-        // Keep location as null if fetch fails
+      } catch (error) {
+        console.error("Failed to fetch location:", error);
       } finally {
         setLocationLoading(false);
       }
