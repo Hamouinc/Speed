@@ -180,10 +180,29 @@ export function CVGenerator() {
   const [template, setTemplate] = useState<Template>("modern");
   const [data, setData] = useState<CVData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [scale, setScale] = useState(1);
   const previewRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const t = translations[lang];
   const isRTL = lang === "ar";
+
+  // Handle responsive scaling for the preview
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // 794px is approx 210mm at 96dpi
+        const containerWidth = entry.contentRect.width;
+        const newScale = containerWidth / 794;
+        setScale(newScale);
+      }
+    });
+    
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
 
   // Load from localStorage
   useEffect(() => {
@@ -535,15 +554,21 @@ export function CVGenerator() {
           <h3 className="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 shrink-0">{t.preview}</h3>
           
           {/* A4 Paper Container for Preview */}
-          <div className="@container w-full flex-1">
-            <div className="relative w-full aspect-[210/297] overflow-hidden rounded-lg border border-neutral-700 bg-white">
+          <div ref={containerRef} className="w-full flex-1">
+            <div 
+              className="relative overflow-hidden rounded-lg border border-neutral-700 bg-white mx-auto"
+              style={{ 
+                width: '100%',
+                height: `${1123 * scale}px` // 297mm at 96dpi is approx 1123px
+              }}
+            >
               <div 
                 ref={previewRef}
                 className="absolute top-0 left-0 bg-white text-black origin-top-left"
                 style={{ 
-                  width: '210mm', 
-                  minHeight: '297mm',
-                  transform: 'scale(calc(100cqw / 793.701))'
+                  width: '794px', // 210mm
+                  minHeight: '1123px', // 297mm
+                  transform: `scale(${scale})`
                 }}
               >
                 {template === "modern" && (
@@ -764,7 +789,7 @@ export function CVGenerator() {
                 )}
 
                 {template === "creative" && (
-                  <div className="flex min-h-[297mm] font-sans">
+                  <div className="flex min-h-[1123px] font-sans">
                     {/* Sidebar */}
                     <div className="w-1/3 bg-blue-900 text-white p-8">
                       <h1 className="text-3xl font-bold mb-6 leading-tight">{previewData.personalInfo.fullName}</h1>
