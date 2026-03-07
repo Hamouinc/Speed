@@ -15,12 +15,15 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Memory bank documentation
 - [x] Recipe system for common features
 - [x] SpeedTest component with ipwho.is geolocation API
+- [x] Refactored homepage into a tools landing page
+- [x] Moved SpeedTest to its own dedicated page (`/speed-test`)
 
 ## Current Structure
 
 | File/Directory | Purpose | Status |
 |----------------|---------|--------|
-| `src/app/page.tsx` | Home page with SpeedTest | ✅ Ready |
+| `src/app/page.tsx` | Landing page with tools grid | ✅ Ready |
+| `src/app/speed-test/page.tsx` | Dedicated Speed Test page | ✅ Ready |
 | `src/components/SpeedTest.tsx` | Speed test component | ✅ Ready |
 | `src/app/layout.tsx` | Root layout | ✅ Ready |
 | `src/app/globals.css` | Global styles | ✅ Ready |
@@ -88,3 +91,4 @@ export async function GET() {
 |------|---------|
 | Initial | Template created with base setup |
 | 2026-03-06 | Added SpeedTest component with ipwho.is geolocation API |
+| 2026-03-07 | Refactored homepage into a tools landing page and moved SpeedTest to `/speed-test` |
