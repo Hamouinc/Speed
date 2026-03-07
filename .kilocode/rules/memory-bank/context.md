@@ -17,6 +17,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] SpeedTest component with ipwho.is geolocation API
 - [x] Refactored homepage into a tools landing page
 - [x] Moved SpeedTest to its own dedicated page (`/speed-test`)
+- [x] Added Modern CV Generator tool with multi-language support and PDF export
 
 ## Current Structure
 
@@ -24,7 +25,9 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 |----------------|---------|--------|
 | `src/app/page.tsx` | Landing page with tools grid | ✅ Ready |
 | `src/app/speed-test/page.tsx` | Dedicated Speed Test page | ✅ Ready |
+| `src/app/cv-generator/page.tsx` | Dedicated CV Generator page | ✅ Ready |
 | `src/components/SpeedTest.tsx` | Speed test component | ✅ Ready |
+| `src/components/CVGenerator.tsx` | CV Generator component | ✅ Ready |
 | `src/app/layout.tsx` | Root layout | ✅ Ready |
 | `src/app/globals.css` | Global styles | ✅ Ready |
 | `.kilocode/` | AI context & recipes | ✅ Ready |
@@ -92,3 +95,4 @@ export async function GET() {
 | Initial | Template created with base setup |
 | 2026-03-06 | Added SpeedTest component with ipwho.is geolocation API |
 | 2026-03-07 | Refactored homepage into a tools landing page and moved SpeedTest to `/speed-test` |
+| 2026-03-07 | Added Modern CV Generator tool with multi-language support and PDF export |
