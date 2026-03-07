@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 type Language = "en" | "es" | "ar";
+type Template = "modern" | "classic" | "minimal" | "creative";
 
 interface CVData {
   personalInfo: {
@@ -44,9 +45,51 @@ const defaultData: CVData = {
   skills: "",
 };
 
+const demoData: CVData = {
+  personalInfo: {
+    fullName: "John Doe",
+    email: "john.doe@example.com",
+    phone: "+1 234 567 890",
+    location: "New York, NY",
+    summary: "Experienced professional with a passion for developing innovative solutions that expedite the efficiency and effectiveness of organizational success. Well-versed in modern technologies and best practices to create systems that are reliable and user-friendly.",
+  },
+  experience: [
+    {
+      id: "demo-exp-1",
+      company: "Tech Solutions Inc.",
+      position: "Senior Developer",
+      startDate: "Jan 2020",
+      endDate: "Present",
+      description: "Lead a team of 5 developers to create a new web application.\nImproved system performance by 30%.\nImplemented CI/CD pipelines.",
+    },
+    {
+      id: "demo-exp-2",
+      company: "Web Dev Corp",
+      position: "Frontend Developer",
+      startDate: "Jun 2017",
+      endDate: "Dec 2019",
+      description: "Developed responsive user interfaces using React.\nCollaborated with designers to implement UI/UX best practices.",
+    }
+  ],
+  education: [
+    {
+      id: "demo-edu-1",
+      institution: "University of Technology",
+      degree: "Bachelor of Science in Computer Science",
+      graduationYear: "2017",
+    }
+  ],
+  skills: "JavaScript, TypeScript, React, Node.js, Python, SQL, Git, Agile",
+};
+
 const translations = {
   en: {
     title: "CV Generator",
+    template: "Template",
+    modern: "Modern",
+    classic: "Classic",
+    minimal: "Minimal",
+    creative: "Creative",
     personalInfo: "Personal Information",
     fullName: "Full Name",
     email: "Email",
@@ -72,6 +115,11 @@ const translations = {
   },
   es: {
     title: "Generador de CV",
+    template: "Plantilla",
+    modern: "Moderno",
+    classic: "Clásico",
+    minimal: "Minimalista",
+    creative: "Creativo",
     personalInfo: "Información Personal",
     fullName: "Nombre Completo",
     email: "Correo Electrónico",
@@ -97,6 +145,11 @@ const translations = {
   },
   ar: {
     title: "منشئ السيرة الذاتية",
+    template: "القالب",
+    modern: "حديث",
+    classic: "كلاسيكي",
+    minimal: "بسيط",
+    creative: "إبداعي",
     personalInfo: "المعلومات الشخصية",
     fullName: "الاسم الكامل",
     email: "البريد الإلكتروني",
@@ -124,6 +177,7 @@ const translations = {
 
 export function CVGenerator() {
   const [lang, setLang] = useState<Language>("en");
+  const [template, setTemplate] = useState<Template>("modern");
   const [data, setData] = useState<CVData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -146,6 +200,10 @@ export function CVGenerator() {
     if (savedLang && ["en", "es", "ar"].includes(savedLang)) {
       setLang(savedLang);
     }
+    const savedTemplate = localStorage.getItem("cv-template") as Template;
+    if (savedTemplate && ["modern", "classic", "minimal", "creative"].includes(savedTemplate)) {
+      setTemplate(savedTemplate);
+    }
     setIsLoaded(true);
   }, []);
 
@@ -154,8 +212,9 @@ export function CVGenerator() {
     if (isLoaded) {
       localStorage.setItem("cv-data", JSON.stringify(data));
       localStorage.setItem("cv-lang", lang);
+      localStorage.setItem("cv-template", template);
     }
-  }, [data, lang, isLoaded]);
+  }, [data, lang, template, isLoaded]);
 
   const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -217,11 +276,21 @@ export function CVGenerator() {
     if (!previewRef.current) return;
     
     try {
+      // Temporarily remove transform for high-quality capture
+      const originalTransform = previewRef.current.style.transform;
+      previewRef.current.style.transform = 'none';
+
       const canvas = await html2canvas(previewRef.current, {
         scale: 2,
         useCORS: true,
         logging: false,
+        width: 794, // 210mm at 96dpi
+        height: 1123, // 297mm at 96dpi
+        windowWidth: 794,
       });
+      
+      // Restore transform
+      previewRef.current.style.transform = originalTransform;
       
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
@@ -243,11 +312,34 @@ export function CVGenerator() {
 
   if (!isLoaded) return null;
 
+  const previewData = {
+    personalInfo: {
+      fullName: data.personalInfo.fullName || demoData.personalInfo.fullName,
+      email: data.personalInfo.email || demoData.personalInfo.email,
+      phone: data.personalInfo.phone || demoData.personalInfo.phone,
+      location: data.personalInfo.location || demoData.personalInfo.location,
+      summary: data.personalInfo.summary || demoData.personalInfo.summary,
+    },
+    experience: data.experience.length > 0 ? data.experience : demoData.experience,
+    education: data.education.length > 0 ? data.education : demoData.education,
+    skills: data.skills || demoData.skills,
+  };
+
   return (
     <div className={`w-full max-w-7xl mx-auto p-4 sm:p-6 ${isRTL ? "rtl" : "ltr"}`} dir={isRTL ? "rtl" : "ltr"}>
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-white">{t.title}</h2>
         <div className="flex gap-2">
+          <select
+            value={template}
+            onChange={(e) => setTemplate(e.target.value as Template)}
+            className="bg-neutral-800 text-white border border-neutral-700 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+          >
+            <option value="modern">{t.modern}</option>
+            <option value="classic">{t.classic}</option>
+            <option value="minimal">{t.minimal}</option>
+            <option value="creative">{t.creative}</option>
+          </select>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as Language)}
@@ -439,91 +531,312 @@ export function CVGenerator() {
         </div>
 
         {/* Live Preview */}
-        <div className="bg-neutral-800 p-6 rounded-2xl shadow-xl overflow-y-auto max-h-[80vh] custom-scrollbar">
-          <h3 className="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2">{t.preview}</h3>
+        <div className="bg-neutral-800 p-6 rounded-2xl shadow-xl overflow-y-auto max-h-[80vh] custom-scrollbar flex flex-col">
+          <h3 className="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 shrink-0">{t.preview}</h3>
           
           {/* A4 Paper Container for Preview */}
-          <div className="bg-white text-black p-8 shadow-lg mx-auto" style={{ width: '210mm', minHeight: '297mm', transform: 'scale(0.8)', transformOrigin: 'top center' }}>
-            <div ref={previewRef} className="bg-white p-8" style={{ width: '100%', minHeight: '100%' }}>
-              
-              {/* Header */}
-              <div className="border-b-2 border-gray-800 pb-4 mb-6">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">
-                  {data.personalInfo.fullName || "YOUR NAME"}
-                </h1>
-                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                  {data.personalInfo.email && <span>{data.personalInfo.email}</span>}
-                  {data.personalInfo.phone && <span>{data.personalInfo.phone}</span>}
-                  {data.personalInfo.location && <span>{data.personalInfo.location}</span>}
-                </div>
+          <div className="@container w-full flex-1">
+            <div className="relative w-full aspect-[210/297] overflow-hidden rounded-lg border border-neutral-700 bg-white">
+              <div 
+                ref={previewRef}
+                className="absolute top-0 left-0 bg-white text-black origin-top-left"
+                style={{ 
+                  width: '210mm', 
+                  minHeight: '297mm',
+                  transform: 'scale(calc(100cqw / 793.701))'
+                }}
+              >
+                {template === "modern" && (
+                  <div className="p-10 font-sans">
+                    <div className="border-b-2 border-gray-800 pb-4 mb-6">
+                      <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">
+                        {previewData.personalInfo.fullName}
+                      </h1>
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
+                        {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
+                        {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
+                      </div>
+                    </div>
+
+                    {previewData.personalInfo.summary && (
+                      <div className="mb-6">
+                        <p className="text-gray-700 leading-relaxed">{previewData.personalInfo.summary}</p>
+                      </div>
+                    )}
+
+                    {previewData.experience.length > 0 && (
+                      <div className="mb-6">
+                        <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                          {t.experience}
+                        </h2>
+                        <div className="space-y-4">
+                          {previewData.experience.map((exp) => (
+                            <div key={exp.id}>
+                              <div className="flex justify-between items-baseline mb-1">
+                                <h3 className="text-lg font-semibold text-gray-800">{exp.position}</h3>
+                                <span className="text-sm text-gray-600 font-medium">
+                                  {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
+                                </span>
+                              </div>
+                              <div className="text-md text-gray-700 font-medium mb-2">{exp.company}</div>
+                              <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {previewData.education.length > 0 && (
+                      <div className="mb-6">
+                        <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                          {t.education}
+                        </h2>
+                        <div className="space-y-4">
+                          {previewData.education.map((edu) => (
+                            <div key={edu.id}>
+                              <div className="flex justify-between items-baseline mb-1">
+                                <h3 className="text-lg font-semibold text-gray-800">{edu.degree}</h3>
+                                <span className="text-sm text-gray-600 font-medium">{edu.graduationYear}</span>
+                              </div>
+                              <div className="text-md text-gray-700">{edu.institution}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {previewData.skills && (
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                          {t.skills}
+                        </h2>
+                        <div className="flex flex-wrap gap-2">
+                          {previewData.skills.split(',').map((skill, index) => (
+                            <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                              {skill.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {template === "classic" && (
+                  <div className="p-12 font-serif">
+                    <div className="text-center mb-8">
+                      <h1 className="text-4xl font-bold text-black mb-2">{previewData.personalInfo.fullName}</h1>
+                      <div className="flex justify-center flex-wrap gap-4 text-sm text-gray-800">
+                        {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
+                        {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
+                        {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
+                      </div>
+                    </div>
+                    
+                    {previewData.personalInfo.summary && (
+                      <div className="mb-6">
+                        <p className="text-gray-800 leading-relaxed text-justify">{previewData.personalInfo.summary}</p>
+                      </div>
+                    )}
+
+                    {previewData.experience.length > 0 && (
+                      <div className="mb-6">
+                        <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                          {t.experience}
+                        </h2>
+                        <div className="space-y-5">
+                          {previewData.experience.map((exp) => (
+                            <div key={exp.id}>
+                              <div className="flex justify-between items-baseline mb-1">
+                                <h3 className="text-lg font-bold text-black">{exp.position}</h3>
+                                <span className="text-sm text-gray-800 italic">
+                                  {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
+                                </span>
+                              </div>
+                              <div className="text-md text-gray-800 italic mb-2">{exp.company}</div>
+                              <p className="text-sm text-gray-800 whitespace-pre-line">{exp.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {previewData.education.length > 0 && (
+                      <div className="mb-6">
+                        <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                          {t.education}
+                        </h2>
+                        <div className="space-y-4">
+                          {previewData.education.map((edu) => (
+                            <div key={edu.id}>
+                              <div className="flex justify-between items-baseline mb-1">
+                                <h3 className="text-lg font-bold text-black">{edu.degree}</h3>
+                                <span className="text-sm text-gray-800 italic">{edu.graduationYear}</span>
+                              </div>
+                              <div className="text-md text-gray-800">{edu.institution}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {previewData.skills && (
+                      <div>
+                        <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                          {t.skills}
+                        </h2>
+                        <p className="text-gray-800 leading-relaxed text-center">
+                          {previewData.skills.split(',').map(s => s.trim()).join(' • ')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {template === "minimal" && (
+                  <div className="p-12 font-sans text-gray-800">
+                    <div className="mb-10">
+                      <h1 className="text-5xl font-light text-black mb-4">{previewData.personalInfo.fullName}</h1>
+                      <div className="flex flex-col gap-1 text-sm text-gray-500">
+                        {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
+                        {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
+                        {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
+                      </div>
+                    </div>
+                    
+                    {previewData.personalInfo.summary && (
+                      <div className="mb-10">
+                        <p className="text-gray-600 leading-relaxed text-lg font-light">{previewData.personalInfo.summary}</p>
+                      </div>
+                    )}
+
+                    {previewData.experience.length > 0 && (
+                      <div className="mb-10">
+                        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">{t.experience}</h2>
+                        <div className="space-y-8">
+                          {previewData.experience.map((exp) => (
+                            <div key={exp.id} className="grid grid-cols-4 gap-4">
+                              <div className="col-span-1 text-sm text-gray-500">
+                                {exp.startDate} <br/> {exp.endDate}
+                              </div>
+                              <div className="col-span-3">
+                                <h3 className="text-lg font-medium text-black">{exp.position}</h3>
+                                <div className="text-md text-gray-600 mb-2">{exp.company}</div>
+                                <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {previewData.education.length > 0 && (
+                      <div className="mb-10">
+                        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">{t.education}</h2>
+                        <div className="space-y-6">
+                          {previewData.education.map((edu) => (
+                            <div key={edu.id} className="grid grid-cols-4 gap-4">
+                              <div className="col-span-1 text-sm text-gray-500">
+                                {edu.graduationYear}
+                              </div>
+                              <div className="col-span-3">
+                                <h3 className="text-lg font-medium text-black">{edu.degree}</h3>
+                                <div className="text-md text-gray-600">{edu.institution}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {previewData.skills && (
+                      <div>
+                        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">{t.skills}</h2>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
+                          {previewData.skills.split(',').map((skill, index) => (
+                            <span key={index} className="text-gray-700">{skill.trim()}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {template === "creative" && (
+                  <div className="flex min-h-[297mm] font-sans">
+                    {/* Sidebar */}
+                    <div className="w-1/3 bg-blue-900 text-white p-8">
+                      <h1 className="text-3xl font-bold mb-6 leading-tight">{previewData.personalInfo.fullName}</h1>
+                      
+                      <div className="space-y-4 text-sm text-blue-100 mb-10">
+                        {previewData.personalInfo.email && <div className="break-all">{previewData.personalInfo.email}</div>}
+                        {previewData.personalInfo.phone && <div>{previewData.personalInfo.phone}</div>}
+                        {previewData.personalInfo.location && <div>{previewData.personalInfo.location}</div>}
+                      </div>
+
+                      {previewData.skills && (
+                        <div>
+                          <h2 className="text-lg font-bold border-b border-blue-700 pb-2 mb-4 uppercase tracking-wider">{t.skills}</h2>
+                          <div className="flex flex-col gap-2">
+                            {previewData.skills.split(',').map((skill, index) => (
+                              <span key={index} className="text-sm">{skill.trim()}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Main Content */}
+                    <div className="w-2/3 bg-white p-8 text-gray-800">
+                      {previewData.personalInfo.summary && (
+                        <div className="mb-8">
+                          <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.summary}</h2>
+                          <p className="text-sm leading-relaxed">{previewData.personalInfo.summary}</p>
+                        </div>
+                      )}
+
+                      {previewData.experience.length > 0 && (
+                        <div className="mb-8">
+                          <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.experience}</h2>
+                          <div className="space-y-6">
+                            {previewData.experience.map((exp) => (
+                              <div key={exp.id}>
+                                <h3 className="text-lg font-bold text-gray-900">{exp.position}</h3>
+                                <div className="flex justify-between items-center mb-2">
+                                  <span className="text-md text-blue-600 font-medium">{exp.company}</span>
+                                  <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                    {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {previewData.education.length > 0 && (
+                        <div className="mb-8">
+                          <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.education}</h2>
+                          <div className="space-y-4">
+                            {previewData.education.map((edu) => (
+                              <div key={edu.id}>
+                                <h3 className="text-lg font-bold text-gray-900">{edu.degree}</h3>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-md text-gray-700">{edu.institution}</span>
+                                  <span className="text-sm text-gray-500">{edu.graduationYear}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
               </div>
-
-              {/* Summary */}
-              {data.personalInfo.summary && (
-                <div className="mb-6">
-                  <p className="text-gray-700 leading-relaxed">{data.personalInfo.summary}</p>
-                </div>
-              )}
-
-              {/* Experience */}
-              {data.experience.length > 0 && (
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
-                    {t.experience}
-                  </h2>
-                  <div className="space-y-4">
-                    {data.experience.map((exp) => (
-                      <div key={exp.id}>
-                        <div className="flex justify-between items-baseline mb-1">
-                          <h3 className="text-lg font-semibold text-gray-800">{exp.position}</h3>
-                          <span className="text-sm text-gray-600 font-medium">
-                            {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
-                          </span>
-                        </div>
-                        <div className="text-md text-gray-700 font-medium mb-2">{exp.company}</div>
-                        <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Education */}
-              {data.education.length > 0 && (
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
-                    {t.education}
-                  </h2>
-                  <div className="space-y-4">
-                    {data.education.map((edu) => (
-                      <div key={edu.id}>
-                        <div className="flex justify-between items-baseline mb-1">
-                          <h3 className="text-lg font-semibold text-gray-800">{edu.degree}</h3>
-                          <span className="text-sm text-gray-600 font-medium">{edu.graduationYear}</span>
-                        </div>
-                        <div className="text-md text-gray-700">{edu.institution}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Skills */}
-              {data.skills && (
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
-                    {t.skills}
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {data.skills.split(',').map((skill, index) => (
-                      <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
-                        {skill.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
             </div>
           </div>
         </div>
