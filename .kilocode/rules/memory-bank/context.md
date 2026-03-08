@@ -19,6 +19,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Moved SpeedTest to its own dedicated page (`/speed-test`)
 - [x] Added Modern CV Generator tool with multi-language support and PDF export
 - [x] Fixed CV Generator preview scaling - removed zoom/transform scaling, made preview fully responsive with separate hidden A4 container for PDF export
+- [x] Fixed PDF export LAB color error - normalized all colors to hex in html2canvas onclone callback
 
 ## Current Structure
 
@@ -97,4 +98,5 @@ export async function GET() {
 | 2026-03-06 | Added SpeedTest component with ipwho.is geolocation API |
 | 2026-03-07 | Refactored homepage into a tools landing page and moved SpeedTest to `/speed-test` |
 | 2026-03-07 | Added Modern CV Generator tool with multi-language support and PDF export |
+| 2026-03-08 | Fixed CV Generator preview scaling and PDF export LAB color error |
 | 2026-03-08 | Fixed CV Generator preview scaling - removed zoom/transform, made responsive with hidden A4 container for PDF |
