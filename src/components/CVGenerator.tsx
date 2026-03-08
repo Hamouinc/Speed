@@ -180,35 +180,11 @@ export function CVGenerator() {
   const [template, setTemplate] = useState<Template>("modern");
   const [data, setData] = useState<CVData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [zoom, setZoom] = useState(100);
   const previewRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const t = translations[lang];
   const isRTL = lang === "ar";
-
-  // Handle responsive scaling for the preview using zoom
-  useEffect(() => {
-    if (!containerRef.current) return;
-    
-    const updateZoom = (width: number) => {
-      // 794px is 210mm at 96dpi
-      const zoomLevel = (width / 794) * 100;
-      setZoom(zoomLevel);
-    };
-
-    // Set initial zoom
-    updateZoom(containerRef.current.clientWidth);
-    
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        updateZoom(entry.contentRect.width);
-      }
-    });
-    
-    resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
 
   // Load from localStorage
   useEffect(() => {
@@ -298,24 +274,16 @@ export function CVGenerator() {
   };
 
   const exportPDF = async () => {
-    if (!previewRef.current) return;
+    if (!pdfRef.current) return;
     
     try {
-      // Temporarily remove zoom for high-quality capture
-      const originalZoom = previewRef.current.style.zoom;
-      previewRef.current.style.zoom = '100%';
-
-      const canvas = await html2canvas(previewRef.current, {
+      const canvas = await html2canvas(pdfRef.current, {
         scale: 2,
         useCORS: true,
         logging: false,
-        width: 794, // 210mm at 96dpi
-        height: 1123, // 297mm at 96dpi
-        windowWidth: 794,
+        width: 794,
+        height: 1123,
       });
-      
-      // Restore zoom
-      previewRef.current.style.zoom = originalZoom;
       
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
@@ -559,24 +527,8 @@ export function CVGenerator() {
         <div className="bg-neutral-800 p-6 rounded-2xl shadow-xl overflow-y-auto max-h-[80vh] custom-scrollbar flex flex-col">
           <h3 className="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 shrink-0">{t.preview}</h3>
           
-          {/* A4 Paper Container for Preview */}
-          <div ref={containerRef} className="w-full flex-1">
-            <div
-              className="relative overflow-hidden rounded-lg border border-neutral-700 bg-white mx-auto"
-              style={{
-                width: '100%',
-                height: `${1123 * (zoom / 100)}px` // 297mm at 96dpi is approx 1123px
-              }}
-            >
-              <div
-                ref={previewRef}
-                className="absolute top-0 left-0 bg-white text-black origin-top-left"
-                style={{
-                  width: '794px', // 210mm
-                  minHeight: '1123px', // 297mm
-                  zoom: `${zoom}%`
-                }}
-              >
+          {/* Responsive Preview Container */}
+          <div ref={previewRef} className="w-full bg-white rounded-lg border border-neutral-700 overflow-hidden text-black">
                 {template === "modern" && (
                   <div className="p-10 font-sans">
                     <div className="border-b-2 border-gray-800 pb-4 mb-6">
@@ -870,7 +822,296 @@ export function CVGenerator() {
               </div>
             </div>
           </div>
-        </div>
+
+        {/* Hidden PDF Export Container - Always A4 size */}
+        <div ref={pdfRef} className="fixed left-[-9999px] top-0" style={{ width: '794px', minHeight: '1123px' }}>
+        {template === "modern" && (
+          <div className="p-10 font-sans bg-white" style={{ width: '794px', minHeight: '1123px' }}>
+            <div className="border-b-2 border-gray-800 pb-4 mb-6">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">
+                {previewData.personalInfo.fullName}
+              </h1>
+              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
+                {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
+                {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
+              </div>
+            </div>
+
+            {previewData.personalInfo.summary && (
+              <div className="mb-6">
+                <p className="text-gray-700 leading-relaxed">{previewData.personalInfo.summary}</p>
+              </div>
+            )}
+
+            {previewData.experience.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                  {t.experience}
+                </h2>
+                <div className="space-y-4">
+                  {previewData.experience.map((exp) => (
+                    <div key={exp.id}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h3 className="text-lg font-semibold text-gray-800">{exp.position}</h3>
+                        <span className="text-sm text-gray-600 font-medium">
+                          {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
+                        </span>
+                      </div>
+                      <div className="text-md text-gray-700 font-medium mb-2">{exp.company}</div>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.education.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                  {t.education}
+                </h2>
+                <div className="space-y-4">
+                  {previewData.education.map((edu) => (
+                    <div key={edu.id}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h3 className="text-lg font-semibold text-gray-800">{edu.degree}</h3>
+                        <span className="text-sm text-gray-600 font-medium">{edu.graduationYear}</span>
+                      </div>
+                      <div className="text-md text-gray-700">{edu.institution}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.skills && (
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                  {t.skills}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {previewData.skills.split(',').map((skill, index) => (
+                    <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                      {skill.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {template === "classic" && (
+          <div className="p-12 font-serif bg-white" style={{ width: '794px', minHeight: '1123px' }}>
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-black mb-2">{previewData.personalInfo.fullName}</h1>
+              <div className="flex justify-center flex-wrap gap-4 text-sm text-gray-800">
+                {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
+                {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
+                {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
+              </div>
+            </div>
+            
+            {previewData.personalInfo.summary && (
+              <div className="mb-6">
+                <p className="text-gray-800 leading-relaxed text-justify">{previewData.personalInfo.summary}</p>
+              </div>
+            )}
+
+            {previewData.experience.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                  {t.experience}
+                </h2>
+                <div className="space-y-5">
+                  {previewData.experience.map((exp) => (
+                    <div key={exp.id}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h3 className="text-lg font-bold text-black">{exp.position}</h3>
+                        <span className="text-sm text-gray-800 italic">
+                          {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
+                        </span>
+                      </div>
+                      <div className="text-md text-gray-800 italic mb-2">{exp.company}</div>
+                      <p className="text-sm text-gray-800 whitespace-pre-line">{exp.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.education.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                  {t.education}
+                </h2>
+                <div className="space-y-4">
+                  {previewData.education.map((edu) => (
+                    <div key={edu.id}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h3 className="text-lg font-bold text-black">{edu.degree}</h3>
+                        <span className="text-sm text-gray-800 italic">{edu.graduationYear}</span>
+                      </div>
+                      <div className="text-md text-gray-800">{edu.institution}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.skills && (
+              <div>
+                <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                  {t.skills}
+                </h2>
+                <p className="text-gray-800 leading-relaxed text-center">
+                  {previewData.skills.split(',').map(s => s.trim()).join(' • ')}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {template === "minimal" && (
+          <div className="p-12 font-sans text-gray-800 bg-white" style={{ width: '794px', minHeight: '1123px' }}>
+            <div className="mb-10">
+              <h1 className="text-5xl font-light text-black mb-4">{previewData.personalInfo.fullName}</h1>
+              <div className="flex flex-col gap-1 text-sm text-gray-500">
+                {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
+                {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
+                {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
+              </div>
+            </div>
+            
+            {previewData.personalInfo.summary && (
+              <div className="mb-10">
+                <p className="text-gray-600 leading-relaxed text-lg font-light">{previewData.personalInfo.summary}</p>
+              </div>
+            )}
+
+            {previewData.experience.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">{t.experience}</h2>
+                <div className="space-y-8">
+                  {previewData.experience.map((exp) => (
+                    <div key={exp.id} className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1 text-sm text-gray-500">
+                        {exp.startDate} <br/> {exp.endDate}
+                      </div>
+                      <div className="col-span-3">
+                        <h3 className="text-lg font-medium text-black">{exp.position}</h3>
+                        <div className="text-md text-gray-600 mb-2">{exp.company}</div>
+                        <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.education.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">{t.education}</h2>
+                <div className="space-y-6">
+                  {previewData.education.map((edu) => (
+                    <div key={edu.id} className="grid grid-cols-4 gap-4">
+                      <div className="col-span-1 text-sm text-gray-500">
+                        {edu.graduationYear}
+                      </div>
+                      <div className="col-span-3">
+                        <h3 className="text-lg font-medium text-black">{edu.degree}</h3>
+                        <div className="text-md text-gray-600">{edu.institution}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {previewData.skills && (
+              <div>
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">{t.skills}</h2>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {previewData.skills.split(',').map((skill, index) => (
+                    <span key={index} className="text-gray-700">{skill.trim()}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {template === "creative" && (
+          <div className="flex min-h-[1123px] font-sans bg-white" style={{ width: '794px' }}>
+            <div className="w-1/3 bg-blue-900 text-white p-8">
+              <h1 className="text-3xl font-bold mb-6 leading-tight">{previewData.personalInfo.fullName}</h1>
+              
+              <div className="space-y-4 text-sm text-blue-100 mb-10">
+                {previewData.personalInfo.email && <div className="break-all">{previewData.personalInfo.email}</div>}
+                {previewData.personalInfo.phone && <div>{previewData.personalInfo.phone}</div>}
+                {previewData.personalInfo.location && <div>{previewData.personalInfo.location}</div>}
+              </div>
+
+              {previewData.skills && (
+                <div>
+                  <h2 className="text-lg font-bold border-b border-blue-700 pb-2 mb-4 uppercase tracking-wider">{t.skills}</h2>
+                  <div className="flex flex-col gap-2">
+                    {previewData.skills.split(',').map((skill, index) => (
+                      <span key={index} className="text-sm">{skill.trim()}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="w-2/3 bg-white p-8 text-gray-800">
+              {previewData.personalInfo.summary && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.summary}</h2>
+                  <p className="text-sm leading-relaxed">{previewData.personalInfo.summary}</p>
+                </div>
+              )}
+
+              {previewData.experience.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.experience}</h2>
+                  <div className="space-y-6">
+                    {previewData.experience.map((exp) => (
+                      <div key={exp.id}>
+                        <h3 className="text-lg font-bold text-gray-900">{exp.position}</h3>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-md text-blue-600 font-medium">{exp.company}</span>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {previewData.education.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.education}</h2>
+                  <div className="space-y-4">
+                    {previewData.education.map((edu) => (
+                      <div key={edu.id}>
+                        <h3 className="text-lg font-bold text-gray-900">{edu.degree}</h3>
+                        <div className="flex justify-between items-center">
+                          <span className="text-md text-gray-700">{edu.institution}</span>
+                          <span className="text-sm text-gray-500">{edu.graduationYear}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
