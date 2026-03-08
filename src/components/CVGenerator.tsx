@@ -898,12 +898,12 @@ export function CVGenerator() {
         {/* Hidden PDF Export Container - Always A4 size */}
         <div ref={pdfRef} className="fixed left-[-9999px] top-0" style={{ width: '794px', minHeight: '1123px' }}>
         {template === "modern" && (
-          <div className="p-10 font-sans bg-white" style={{ width: '794px', minHeight: '1123px' }}>
-            <div className="border-b-2 border-gray-800 pb-4 mb-6">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">
+          <div className="p-8 bg-white" style={{ width: '794px', minHeight: '1123px', fontFamily: "'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', sans-serif" }} dir={isRTL ? "rtl" : "ltr"}>
+            <div className="border-b-2 border-gray-800 pb-5 mb-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-3 uppercase tracking-wide" style={{ lineHeight: '1.2' }}>
                 {previewData.personalInfo.fullName}
               </h1>
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+              <div className="flex flex-wrap gap-3 text-sm text-gray-600" style={{ gap: '12px' }}>
                 {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
                 {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
                 {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
@@ -911,27 +911,27 @@ export function CVGenerator() {
             </div>
 
             {previewData.personalInfo.summary && (
-              <div className="mb-6">
-                <p className="text-gray-700 leading-relaxed">{previewData.personalInfo.summary}</p>
+              <div className="mb-8">
+                <p className="text-gray-700" style={{ lineHeight: '1.6', fontSize: '14px' }}>{previewData.personalInfo.summary}</p>
               </div>
             )}
 
             {previewData.experience.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-2 mb-5 uppercase tracking-wide">
                   {t.experience}
                 </h2>
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {previewData.experience.map((exp) => (
-                    <div key={exp.id}>
-                      <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="text-lg font-semibold text-gray-800">{exp.position}</h3>
-                        <span className="text-sm text-gray-600 font-medium">
+                    <div key={exp.id} style={{ marginBottom: '16px' }}>
+                      <div className="flex justify-between items-baseline" style={{ marginBottom: '6px' }}>
+                        <h3 className="text-lg font-semibold text-gray-800" style={{ fontSize: '16px', fontWeight: 600 }}>{exp.position}</h3>
+                        <span className="text-sm text-gray-600" style={{ fontSize: '13px', fontWeight: 500 }}>
                           {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
                         </span>
                       </div>
-                      <div className="text-md text-gray-700 font-medium mb-2">{exp.company}</div>
-                      <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                      <div className="text-gray-700 font-medium" style={{ fontSize: '14px', marginBottom: '8px', fontWeight: 500 }}>{exp.company}</div>
+                      <p className="text-gray-600" style={{ fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-line' }}>{exp.description}</p>
                     </div>
                   ))}
                 </div>
@@ -939,18 +939,18 @@ export function CVGenerator() {
             )}
 
             {previewData.education.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-2 mb-5 uppercase tracking-wide">
                   {t.education}
                 </h2>
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {previewData.education.map((edu) => (
-                    <div key={edu.id}>
-                      <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="text-lg font-semibold text-gray-800">{edu.degree}</h3>
-                        <span className="text-sm text-gray-600 font-medium">{edu.graduationYear}</span>
+                    <div key={edu.id} style={{ marginBottom: '12px' }}>
+                      <div className="flex justify-between items-baseline" style={{ marginBottom: '6px' }}>
+                        <h3 className="text-lg font-semibold text-gray-800" style={{ fontSize: '16px', fontWeight: 600 }}>{edu.degree}</h3>
+                        <span className="text-sm text-gray-600" style={{ fontSize: '13px', fontWeight: 500 }}>{edu.graduationYear}</span>
                       </div>
-                      <div className="text-md text-gray-700">{edu.institution}</div>
+                      <div className="text-gray-700" style={{ fontSize: '14px' }}>{edu.institution}</div>
                     </div>
                   ))}
                 </div>
@@ -959,12 +959,12 @@ export function CVGenerator() {
 
             {previewData.skills && (
               <div>
-                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-1 mb-4 uppercase tracking-wide">
+                <h2 className="text-xl font-bold text-gray-900 border-b border-gray-300 pb-2 mb-5 uppercase tracking-wide">
                   {t.skills}
                 </h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {previewData.skills.split(',').map((skill, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 text-sm font-medium" style={{ backgroundColor: '#f3f4f6', color: '#1f2937', padding: '4px 12px', borderRadius: '9999px', fontSize: '13px', display: 'inline-block' }}>
                       {skill.trim()}
                     </span>
                   ))}
@@ -975,10 +975,10 @@ export function CVGenerator() {
         )}
 
         {template === "classic" && (
-          <div className="p-12 font-serif bg-white" style={{ width: '794px', minHeight: '1123px' }}>
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-black mb-2">{previewData.personalInfo.fullName}</h1>
-              <div className="flex justify-center flex-wrap gap-4 text-sm text-gray-800">
+          <div className="p-10 bg-white" style={{ width: '794px', minHeight: '1123px', fontFamily: "'Georgia', 'Times New Roman', 'Segoe UI', 'Tahoma', serif" }} dir={isRTL ? "rtl" : "ltr"}>
+            <div className="text-center mb-10">
+              <h1 className="text-4xl font-bold text-black mb-3" style={{ fontSize: '36px', fontWeight: 700, lineHeight: '1.2' }}>{previewData.personalInfo.fullName}</h1>
+              <div className="flex justify-center flex-wrap text-sm text-gray-800" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '12px', fontSize: '14px' }}>
                 {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
                 {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
                 {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
@@ -986,27 +986,27 @@ export function CVGenerator() {
             </div>
             
             {previewData.personalInfo.summary && (
-              <div className="mb-6">
-                <p className="text-gray-800 leading-relaxed text-justify">{previewData.personalInfo.summary}</p>
+              <div className="mb-8">
+                <p className="text-gray-800" style={{ fontSize: '14px', lineHeight: '1.6', textAlign: isRTL ? 'right' : 'justify' }}>{previewData.personalInfo.summary}</p>
               </div>
             )}
 
             {previewData.experience.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-black border-b border-black pb-2 mb-5 text-center uppercase tracking-widest" style={{ fontSize: '20px', fontWeight: 700 }}>
                   {t.experience}
                 </h2>
-                <div className="space-y-5">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {previewData.experience.map((exp) => (
-                    <div key={exp.id}>
-                      <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="text-lg font-bold text-black">{exp.position}</h3>
-                        <span className="text-sm text-gray-800 italic">
+                    <div key={exp.id} style={{ marginBottom: '16px' }}>
+                      <div className="flex justify-between items-baseline" style={{ marginBottom: '6px' }}>
+                        <h3 className="text-lg font-bold text-black" style={{ fontSize: '17px', fontWeight: 700 }}>{exp.position}</h3>
+                        <span className="text-sm text-gray-800" style={{ fontSize: '13px', fontStyle: 'italic' }}>
                           {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
                         </span>
                       </div>
-                      <div className="text-md text-gray-800 italic mb-2">{exp.company}</div>
-                      <p className="text-sm text-gray-800 whitespace-pre-line">{exp.description}</p>
+                      <div className="text-gray-800 mb-2" style={{ fontSize: '15px', fontStyle: 'italic', marginBottom: '8px' }}>{exp.company}</div>
+                      <p className="text-gray-800" style={{ fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-line' }}>{exp.description}</p>
                     </div>
                   ))}
                 </div>
@@ -1014,18 +1014,18 @@ export function CVGenerator() {
             )}
 
             {previewData.education.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-black border-b border-black pb-2 mb-5 text-center uppercase tracking-widest" style={{ fontSize: '20px', fontWeight: 700 }}>
                   {t.education}
                 </h2>
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {previewData.education.map((edu) => (
-                    <div key={edu.id}>
-                      <div className="flex justify-between items-baseline mb-1">
-                        <h3 className="text-lg font-bold text-black">{edu.degree}</h3>
-                        <span className="text-sm text-gray-800 italic">{edu.graduationYear}</span>
+                    <div key={edu.id} style={{ marginBottom: '12px' }}>
+                      <div className="flex justify-between items-baseline" style={{ marginBottom: '6px' }}>
+                        <h3 className="text-lg font-bold text-black" style={{ fontSize: '17px', fontWeight: 700 }}>{edu.degree}</h3>
+                        <span className="text-sm text-gray-800" style={{ fontSize: '13px', fontStyle: 'italic' }}>{edu.graduationYear}</span>
                       </div>
-                      <div className="text-md text-gray-800">{edu.institution}</div>
+                      <div className="text-gray-800" style={{ fontSize: '15px' }}>{edu.institution}</div>
                     </div>
                   ))}
                 </div>
@@ -1034,10 +1034,10 @@ export function CVGenerator() {
 
             {previewData.skills && (
               <div>
-                <h2 className="text-xl font-bold text-black border-b border-black pb-1 mb-4 text-center uppercase tracking-widest">
+                <h2 className="text-xl font-bold text-black border-b border-black pb-2 mb-5 text-center uppercase tracking-widest" style={{ fontSize: '20px', fontWeight: 700 }}>
                   {t.skills}
                 </h2>
-                <p className="text-gray-800 leading-relaxed text-center">
+                <p className="text-gray-800" style={{ fontSize: '14px', lineHeight: '1.6', textAlign: 'center' }}>
                   {previewData.skills.split(',').map(s => s.trim()).join(' • ')}
                 </p>
               </div>
@@ -1046,10 +1046,10 @@ export function CVGenerator() {
         )}
 
         {template === "minimal" && (
-          <div className="p-12 font-sans text-gray-800 bg-white" style={{ width: '794px', minHeight: '1123px' }}>
+          <div className="p-10 text-gray-800 bg-white" style={{ width: '794px', minHeight: '1123px', fontFamily: "'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif" }} dir={isRTL ? "rtl" : "ltr"}>
             <div className="mb-10">
-              <h1 className="text-5xl font-light text-black mb-4">{previewData.personalInfo.fullName}</h1>
-              <div className="flex flex-col gap-1 text-sm text-gray-500">
+              <h1 className="text-5xl font-light text-black mb-4" style={{ fontSize: '48px', fontWeight: 300, lineHeight: '1.1' }}>{previewData.personalInfo.fullName}</h1>
+              <div className="flex flex-col text-sm text-gray-500" style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
                 {previewData.personalInfo.email && <span>{previewData.personalInfo.email}</span>}
                 {previewData.personalInfo.phone && <span>{previewData.personalInfo.phone}</span>}
                 {previewData.personalInfo.location && <span>{previewData.personalInfo.location}</span>}
@@ -1058,23 +1058,23 @@ export function CVGenerator() {
             
             {previewData.personalInfo.summary && (
               <div className="mb-10">
-                <p className="text-gray-600 leading-relaxed text-lg font-light">{previewData.personalInfo.summary}</p>
+                <p className="text-gray-600" style={{ fontSize: '16px', lineHeight: '1.6', fontWeight: 300 }}>{previewData.personalInfo.summary}</p>
               </div>
             )}
 
             {previewData.experience.length > 0 && (
               <div className="mb-10">
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">{t.experience}</h2>
-                <div className="space-y-8">
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6" style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.1em' }}>{t.experience}</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                   {previewData.experience.map((exp) => (
-                    <div key={exp.id} className="grid grid-cols-4 gap-4">
-                      <div className="col-span-1 text-sm text-gray-500">
+                    <div key={exp.id} style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                      <div className="text-gray-500" style={{ width: '140px', flexShrink: 0, fontSize: '13px' }}>
                         {exp.startDate} <br/> {exp.endDate}
                       </div>
-                      <div className="col-span-3">
-                        <h3 className="text-lg font-medium text-black">{exp.position}</h3>
-                        <div className="text-md text-gray-600 mb-2">{exp.company}</div>
-                        <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                      <div style={{ flex: 1 }}>
+                        <h3 className="text-black" style={{ fontSize: '17px', fontWeight: 500, marginBottom: '4px' }}>{exp.position}</h3>
+                        <div className="text-gray-600 mb-2" style={{ fontSize: '15px', marginBottom: '8px' }}>{exp.company}</div>
+                        <p className="text-gray-600" style={{ fontSize: '13px', lineHeight: '1.5', whiteSpace: 'pre-line' }}>{exp.description}</p>
                       </div>
                     </div>
                   ))}
@@ -1084,16 +1084,16 @@ export function CVGenerator() {
 
             {previewData.education.length > 0 && (
               <div className="mb-10">
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">{t.education}</h2>
-                <div className="space-y-6">
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6" style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.1em' }}>{t.education}</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {previewData.education.map((edu) => (
-                    <div key={edu.id} className="grid grid-cols-4 gap-4">
-                      <div className="col-span-1 text-sm text-gray-500">
+                    <div key={edu.id} style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+                      <div className="text-gray-500" style={{ width: '140px', flexShrink: 0, fontSize: '13px' }}>
                         {edu.graduationYear}
                       </div>
-                      <div className="col-span-3">
-                        <h3 className="text-lg font-medium text-black">{edu.degree}</h3>
-                        <div className="text-md text-gray-600">{edu.institution}</div>
+                      <div style={{ flex: 1 }}>
+                        <h3 className="text-black" style={{ fontSize: '17px', fontWeight: 500, marginBottom: '4px' }}>{edu.degree}</h3>
+                        <div className="text-gray-600" style={{ fontSize: '15px' }}>{edu.institution}</div>
                       </div>
                     </div>
                   ))}
@@ -1103,10 +1103,10 @@ export function CVGenerator() {
 
             {previewData.skills && (
               <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">{t.skills}</h2>
-                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-5" style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.1em' }}>{t.skills}</h2>
+                <div className="flex flex-wrap" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px' }}>
                   {previewData.skills.split(',').map((skill, index) => (
-                    <span key={index} className="text-gray-700">{skill.trim()}</span>
+                    <span key={index} className="text-gray-700" style={{ fontSize: '14px' }}>{skill.trim()}</span>
                   ))}
                 </div>
               </div>
@@ -1115,50 +1115,50 @@ export function CVGenerator() {
         )}
 
         {template === "creative" && (
-          <div className="flex min-h-[1123px] font-sans bg-white" style={{ width: '794px' }}>
-            <div className="w-1/3 bg-blue-900 text-white p-8">
-              <h1 className="text-3xl font-bold mb-6 leading-tight">{previewData.personalInfo.fullName}</h1>
+          <div className="flex min-h-[1123px] bg-white" style={{ width: '794px', fontFamily: "'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', sans-serif" }} dir={isRTL ? "rtl" : "ltr"}>
+            <div style={{ width: '260px', backgroundColor: '#1e3a8a', color: '#ffffff', padding: '32px' }}>
+              <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '24px', lineHeight: '1.2' }}>{previewData.personalInfo.fullName}</h1>
               
-              <div className="space-y-4 text-sm text-blue-100 mb-10">
-                {previewData.personalInfo.email && <div className="break-all">{previewData.personalInfo.email}</div>}
+              <div style={{ marginBottom: '40px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', color: '#dbeafe' }}>
+                {previewData.personalInfo.email && <div style={{ wordBreak: 'break-all' }}>{previewData.personalInfo.email}</div>}
                 {previewData.personalInfo.phone && <div>{previewData.personalInfo.phone}</div>}
                 {previewData.personalInfo.location && <div>{previewData.personalInfo.location}</div>}
               </div>
 
               {previewData.skills && (
                 <div>
-                  <h2 className="text-lg font-bold border-b border-blue-700 pb-2 mb-4 uppercase tracking-wider">{t.skills}</h2>
-                  <div className="flex flex-col gap-2">
+                  <h2 style={{ fontSize: '18px', fontWeight: 700, borderBottom: '1px solid #1e40af', paddingBottom: '8px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.skills}</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {previewData.skills.split(',').map((skill, index) => (
-                      <span key={index} className="text-sm">{skill.trim()}</span>
+                      <span key={index} style={{ fontSize: '14px' }}>{skill.trim()}</span>
                     ))}
                   </div>
                 </div>
               )}
             </div>
             
-            <div className="w-2/3 bg-white p-8 text-gray-800">
+            <div style={{ width: '534px', backgroundColor: '#ffffff', padding: '32px', color: '#1f2937' }}>
               {previewData.personalInfo.summary && (
-                <div className="mb-8">
-                  <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.summary}</h2>
-                  <p className="text-sm leading-relaxed">{previewData.personalInfo.summary}</p>
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#1e3a8a', borderBottom: '2px solid #dbeafe', paddingBottom: '8px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.summary}</h2>
+                  <p style={{ fontSize: '14px', lineHeight: '1.6' }}>{previewData.personalInfo.summary}</p>
                 </div>
               )}
 
               {previewData.experience.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.experience}</h2>
-                  <div className="space-y-6">
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#1e3a8a', borderBottom: '2px solid #dbeafe', paddingBottom: '8px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.experience}</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {previewData.experience.map((exp) => (
-                      <div key={exp.id}>
-                        <h3 className="text-lg font-bold text-gray-900">{exp.position}</h3>
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-md text-blue-600 font-medium">{exp.company}</span>
-                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      <div key={exp.id} style={{ marginBottom: '12px' }}>
+                        <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#111827', marginBottom: '6px' }}>{exp.position}</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '15px', color: '#2563eb', fontWeight: 500 }}>{exp.company}</span>
+                          <span style={{ fontSize: '13px', color: '#6b7280', backgroundColor: '#f3f4f6', padding: '2px 8px', borderRadius: '4px' }}>
                             {exp.startDate} {exp.startDate && exp.endDate ? "-" : ""} {exp.endDate}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 whitespace-pre-line">{exp.description}</p>
+                        <p style={{ fontSize: '13px', color: '#4b5563', lineHeight: '1.5', whiteSpace: 'pre-line' }}>{exp.description}</p>
                       </div>
                     ))}
                   </div>
@@ -1166,15 +1166,15 @@ export function CVGenerator() {
               )}
 
               {previewData.education.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="text-xl font-bold text-blue-900 border-b-2 border-blue-100 pb-2 mb-4 uppercase tracking-wider">{t.education}</h2>
-                  <div className="space-y-4">
+                <div style={{ marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#1e3a8a', borderBottom: '2px solid #dbeafe', paddingBottom: '8px', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.education}</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {previewData.education.map((edu) => (
-                      <div key={edu.id}>
-                        <h3 className="text-lg font-bold text-gray-900">{edu.degree}</h3>
-                        <div className="flex justify-between items-center">
-                          <span className="text-md text-gray-700">{edu.institution}</span>
-                          <span className="text-sm text-gray-500">{edu.graduationYear}</span>
+                      <div key={edu.id} style={{ marginBottom: '8px' }}>
+                        <h3 style={{ fontSize: '17px', fontWeight: 700, color: '#111827', marginBottom: '6px' }}>{edu.degree}</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '15px', color: '#374151' }}>{edu.institution}</span>
+                          <span style={{ fontSize: '13px', color: '#6b7280' }}>{edu.graduationYear}</span>
                         </div>
                       </div>
                     ))}
