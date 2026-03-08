@@ -19,7 +19,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Moved SpeedTest to its own dedicated page (`/speed-test`)
 - [x] Added Modern CV Generator tool with multi-language support and PDF export
 - [x] Fixed CV Generator preview scaling - removed zoom/transform scaling, made preview fully responsive with separate hidden A4 container for PDF export
-- [x] Fixed PDF export LAB color error - normalized all colors to hex in html2canvas onclone callback
+- [x] Fixed PDF export LAB color error - comprehensive color normalization including borders and CSS variable overrides in html2canvas onclone callback
 
 ## Current Structure
 
@@ -100,3 +100,4 @@ export async function GET() {
 | 2026-03-07 | Added Modern CV Generator tool with multi-language support and PDF export |
 | 2026-03-08 | Fixed CV Generator preview scaling and PDF export LAB color error |
 | 2026-03-08 | Fixed CV Generator preview scaling - removed zoom/transform, made responsive with hidden A4 container for PDF |
+| 2026-03-08 | Enhanced PDF export color normalization with border color handling and CSS variable injection |
