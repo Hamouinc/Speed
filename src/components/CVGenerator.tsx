@@ -285,8 +285,31 @@ export function CVGenerator() {
         height: 1123,
         backgroundColor: '#ffffff',
         onclone: (clonedDoc) => {
-          const element = clonedDoc.body;
-          element.style.color = '#000000';
+          // Fix LAB color issues by converting all elements to use hex colors
+          const allElements = clonedDoc.querySelectorAll('*');
+          const colorMap: Record<string, string> = {
+            'rgb(0, 0, 0)': '#000000',
+            'rgb(255, 255, 255)': '#ffffff',
+          };
+          
+          allElements.forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            // Force background color to white if not set
+            const bg = window.getComputedStyle(htmlEl).backgroundColor;
+            if (bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') {
+              htmlEl.style.backgroundColor = '#ffffff';
+            }
+            // Ensure text color is a valid hex
+            const color = window.getComputedStyle(htmlEl).color;
+            if (color && !color.startsWith('#')) {
+              htmlEl.style.color = '#000000';
+            }
+          });
+          
+          // Also set explicit styles on the container
+          const container = clonedDoc.body;
+          container.style.backgroundColor = '#ffffff';
+          container.style.color = '#000000';
         }
       });
       
