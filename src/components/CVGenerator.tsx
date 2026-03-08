@@ -528,9 +528,9 @@ export function CVGenerator() {
           <h3 className="text-xl font-semibold text-white mb-4 border-b border-neutral-700 pb-2 shrink-0">{t.preview}</h3>
           
           {/* Responsive Preview Container */}
-          <div ref={previewRef} className="w-full bg-white rounded-lg border border-neutral-700 overflow-hidden text-black">
+          <div ref={previewRef} className="w-full bg-white rounded-lg border border-neutral-700 text-black">
                 {template === "modern" && (
-                  <div className="p-10 font-sans">
+                  <div className="p-10 font-sans min-h-[1123px]">
                     <div className="border-b-2 border-gray-800 pb-4 mb-6">
                       <h1 className="text-4xl font-bold text-gray-900 mb-2 uppercase tracking-wider">
                         {previewData.personalInfo.fullName}
@@ -607,7 +607,7 @@ export function CVGenerator() {
                 )}
 
                 {template === "classic" && (
-                  <div className="p-12 font-serif">
+                  <div className="p-12 font-serif min-h-[1123px]">
                     <div className="text-center mb-8">
                       <h1 className="text-4xl font-bold text-black mb-2">{previewData.personalInfo.fullName}</h1>
                       <div className="flex justify-center flex-wrap gap-4 text-sm text-gray-800">
@@ -678,7 +678,7 @@ export function CVGenerator() {
                 )}
 
                 {template === "minimal" && (
-                  <div className="p-12 font-sans text-gray-800">
+                  <div className="p-12 font-sans text-gray-800 min-h-[1123px]">
                     <div className="mb-10">
                       <h1 className="text-5xl font-light text-black mb-4">{previewData.personalInfo.fullName}</h1>
                       <div className="flex flex-col gap-1 text-sm text-gray-500">
