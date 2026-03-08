@@ -191,12 +191,18 @@ export function CVGenerator() {
   useEffect(() => {
     if (!containerRef.current) return;
     
+    const updateScale = (width: number) => {
+      // Calculate scale to fit exactly, max scale is 1 (don't scale up)
+      const newScale = width / 794;
+      setScale(newScale);
+    };
+
+    // Set initial scale
+    updateScale(containerRef.current.clientWidth);
+    
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        // 794px is approx 210mm at 96dpi
-        const containerWidth = entry.contentRect.width;
-        const newScale = containerWidth / 794;
-        setScale(newScale);
+        updateScale(entry.contentRect.width);
       }
     });
     
@@ -564,11 +570,12 @@ export function CVGenerator() {
             >
               <div 
                 ref={previewRef}
-                className="absolute top-0 left-0 bg-white text-black origin-top-left"
+                className="absolute top-0 left-0 bg-white text-black"
                 style={{ 
                   width: '794px', // 210mm
                   minHeight: '1123px', // 297mm
-                  transform: `scale(${scale})`
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'top left'
                 }}
               >
                 {template === "modern" && (
