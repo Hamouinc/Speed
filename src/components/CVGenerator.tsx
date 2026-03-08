@@ -180,29 +180,29 @@ export function CVGenerator() {
   const [template, setTemplate] = useState<Template>("modern");
   const [data, setData] = useState<CVData>(defaultData);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [zoom, setZoom] = useState(100);
   const previewRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const t = translations[lang];
   const isRTL = lang === "ar";
 
-  // Handle responsive scaling for the preview
+  // Handle responsive scaling for the preview using zoom
   useEffect(() => {
     if (!containerRef.current) return;
     
-    const updateScale = (width: number) => {
-      // Calculate scale to fit exactly, max scale is 1 (don't scale up)
-      const newScale = width / 794;
-      setScale(newScale);
+    const updateZoom = (width: number) => {
+      // 794px is 210mm at 96dpi
+      const zoomLevel = (width / 794) * 100;
+      setZoom(zoomLevel);
     };
 
-    // Set initial scale
-    updateScale(containerRef.current.clientWidth);
+    // Set initial zoom
+    updateZoom(containerRef.current.clientWidth);
     
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        updateScale(entry.contentRect.width);
+        updateZoom(entry.contentRect.width);
       }
     });
     
@@ -301,9 +301,9 @@ export function CVGenerator() {
     if (!previewRef.current) return;
     
     try {
-      // Temporarily remove transform for high-quality capture
-      const originalTransform = previewRef.current.style.transform;
-      previewRef.current.style.transform = 'none';
+      // Temporarily remove zoom for high-quality capture
+      const originalZoom = previewRef.current.style.zoom;
+      previewRef.current.style.zoom = '100%';
 
       const canvas = await html2canvas(previewRef.current, {
         scale: 2,
@@ -314,8 +314,8 @@ export function CVGenerator() {
         windowWidth: 794,
       });
       
-      // Restore transform
-      previewRef.current.style.transform = originalTransform;
+      // Restore zoom
+      previewRef.current.style.zoom = originalZoom;
       
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
@@ -561,21 +561,20 @@ export function CVGenerator() {
           
           {/* A4 Paper Container for Preview */}
           <div ref={containerRef} className="w-full flex-1">
-            <div 
+            <div
               className="relative overflow-hidden rounded-lg border border-neutral-700 bg-white mx-auto"
-              style={{ 
+              style={{
                 width: '100%',
-                height: `${1123 * scale}px` // 297mm at 96dpi is approx 1123px
+                height: `${1123 * (zoom / 100)}px` // 297mm at 96dpi is approx 1123px
               }}
             >
-              <div 
+              <div
                 ref={previewRef}
-                className="absolute top-0 left-0 bg-white text-black"
-                style={{ 
+                className="absolute top-0 left-0 bg-white text-black origin-top-left"
+                style={{
                   width: '794px', // 210mm
                   minHeight: '1123px', // 297mm
-                  transform: `scale(${scale})`,
-                  transformOrigin: 'top left'
+                  zoom: `${zoom}%`
                 }}
               >
                 {template === "modern" && (
