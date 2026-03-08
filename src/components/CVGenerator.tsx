@@ -283,6 +283,11 @@ export function CVGenerator() {
         logging: false,
         width: 794,
         height: 1123,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          const element = clonedDoc.body;
+          element.style.color = '#000000';
+        }
       });
       
       const imgData = canvas.toDataURL("image/png");
