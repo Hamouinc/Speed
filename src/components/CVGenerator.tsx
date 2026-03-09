@@ -658,10 +658,10 @@ export function CVGenerator() {
       soft: data.skills.soft || demoData.skills.soft,
       additional: data.skills.additional || demoData.skills.additional,
     },
-    spokenLanguages: data.spokenLanguages.length > 0 ? data.spokenLanguages : demoData.spokenLanguages,
-    certifications: data.certifications.length > 0 ? data.certifications : demoData.certifications,
-    projects: data.projects.length > 0 ? data.projects : demoData.projects,
-    awards: data.awards.length > 0 ? data.awards : demoData.awards,
+    spokenLanguages: data.spokenLanguages && data.spokenLanguages.length > 0 ? data.spokenLanguages : demoData.spokenLanguages,
+    certifications: data.certifications && data.certifications.length > 0 ? data.certifications : demoData.certifications,
+    projects: data.projects && data.projects.length > 0 ? data.projects : demoData.projects,
+    awards: data.awards && data.awards.length > 0 ? data.awards : demoData.awards,
   };
 
   return (
