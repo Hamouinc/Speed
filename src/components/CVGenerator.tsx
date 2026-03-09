@@ -282,14 +282,17 @@ export function CVGenerator() {
         quality: 1,
         scale: 2,
         bgcolor: '#ffffff',
-        style: {
-          'font-family': isRTL
-            ? "'Segoe UI', 'Tahoma', 'Arial', sans-serif"
-            : "'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', sans-serif",
-          'text-shadow': 'none',
-          'outline': 'none',
-          'border-width': '0',
-          'box-shadow': 'none',
+        filter: (node: Node) => {
+          // Remove any shadow/outline styles from all elements
+          const element = node as HTMLElement;
+          if (element.style) {
+            element.style.textShadow = 'none';
+            element.style.boxShadow = 'none';
+            element.style.outline = 'none';
+            element.style.borderWidth = '0';
+            element.style.borderStyle = 'none';
+          }
+          return true;
         },
       });
       
