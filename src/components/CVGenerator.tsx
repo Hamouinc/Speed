@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import * as domtoimage from "dom-to-image-more";
 
 type Language = "en" | "es" | "ar";
 type Template = "modern" | "classic" | "minimal" | "creative";
@@ -277,87 +277,22 @@ export function CVGenerator() {
     if (!pdfRef.current) return;
     
     try {
-      const canvas = await html2canvas(pdfRef.current, {
+      // Configure dom-to-image options for better Arabic text rendering
+      const dataUrl = await domtoimage.toPng(pdfRef.current, {
+        quality: 1,
         scale: 2,
-        useCORS: true,
-        logging: false,
-        width: 794,
-        height: 1123,
-        backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          // Fix LAB color issues by converting all elements to use hex colors
-          const allElements = clonedDoc.querySelectorAll('*');
-          
-          allElements.forEach((el) => {
-            const htmlEl = el as HTMLElement;
-            const computedStyle = window.getComputedStyle(htmlEl);
-            
-            // Force all color properties to hex values
-            const bg = computedStyle.backgroundColor;
-            if (bg && (bg.includes('lab') || bg.includes('oklch') || bg.includes('color('))) {
-              htmlEl.style.backgroundColor = '#ffffff';
-            } else if (bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') {
-              htmlEl.style.backgroundColor = '#ffffff';
-            }
-            
-            // Text color
-            const color = computedStyle.color;
-            if (color && (color.includes('lab') || color.includes('oklch') || color.includes('color(') || (!color.startsWith('#') && !color.startsWith('rgb')))) {
-              htmlEl.style.color = '#000000';
-            }
-            
-            // Border colors
-            const borderColor = computedStyle.borderColor;
-            if (borderColor && (borderColor.includes('lab') || borderColor.includes('oklch') || borderColor.includes('color('))) {
-              htmlEl.style.borderColor = '#cccccc';
-            }
-            
-            // Border top
-            const borderTopColor = computedStyle.borderTopColor;
-            if (borderTopColor && (borderTopColor.includes('lab') || borderTopColor.includes('oklch'))) {
-              htmlEl.style.borderTopColor = '#cccccc';
-            }
-            
-            // Border bottom
-            const borderBottomColor = computedStyle.borderBottomColor;
-            if (borderBottomColor && (borderBottomColor.includes('lab') || borderBottomColor.includes('oklch'))) {
-              htmlEl.style.borderBottomColor = '#cccccc';
-            }
-            
-            // Border left
-            const borderLeftColor = computedStyle.borderLeftColor;
-            if (borderLeftColor && (borderLeftColor.includes('lab') || borderLeftColor.includes('oklch'))) {
-              htmlEl.style.borderLeftColor = '#cccccc';
-            }
-            
-            // Border right
-            const borderRightColor = computedStyle.borderRightColor;
-            if (borderRightColor && (borderRightColor.includes('lab') || borderRightColor.includes('oklch'))) {
-              htmlEl.style.borderRightColor = '#cccccc';
-            }
-          });
-          
-          // Set explicit styles on the container
-          const container = clonedDoc.body;
-          if (container) {
-            container.style.backgroundColor = '#ffffff';
-            container.style.color = '#000000';
-          }
-          
-          // Inject a style tag to override any CSS variables that might use LAB
-          const styleTag = clonedDoc.createElement('style');
-          styleTag.textContent = `
-            * {
-              background-color: #ffffff !important;
-              color: #000000 !important;
-              border-color: #cccccc !important;
-            }
-          `;
-          clonedDoc.head.appendChild(styleTag);
+        bgcolor: '#ffffff',
+        style: {
+          'font-family': isRTL
+            ? "'Segoe UI', 'Tahoma', 'Arial', sans-serif"
+            : "'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', sans-serif",
+        },
+        filter: (node: Node) => {
+          // Keep all nodes
+          return true;
         }
       });
       
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -365,9 +300,9 @@ export function CVGenerator() {
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save("resume.pdf");
     } catch (error) {
       console.error("Error generating PDF:", error);
