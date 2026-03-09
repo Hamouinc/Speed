@@ -286,11 +286,11 @@ export function CVGenerator() {
           'font-family': isRTL
             ? "'Segoe UI', 'Tahoma', 'Arial', sans-serif"
             : "'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'Arial', sans-serif",
+          'text-shadow': 'none',
+          'outline': 'none',
+          'border-width': '0',
+          'box-shadow': 'none',
         },
-        filter: (node: Node) => {
-          // Keep all nodes
-          return true;
-        }
       });
       
       const pdf = new jsPDF({
