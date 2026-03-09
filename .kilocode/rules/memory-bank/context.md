@@ -23,7 +23,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Fixed PDF spacing issues in CV Generator - improved margins, padding, and gap consistency across all templates
 - [x] Fixed Arabic text rendering in PDF export - added Arabic font support (Segoe UI, Tahoma) and RTL direction handling for all templates
 - [x] Fixed disconnected Arabic letters in PDF export - replaced html2canvas with dom-to-image-more for better complex text layout support
-- [x] Fixed text borders in PDF export - added CSS reset for text-shadow, outline, border-width, and box-shadow in dom-to-image options
+- [x] Fixed text borders in PDF export - using dom-to-image filter function to remove text-shadow, box-shadow, outline, and border styles from each element
 
 ## Current Structure
 
