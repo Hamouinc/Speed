@@ -22,6 +22,7 @@ The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. I
 - [x] Fixed PDF export LAB color error - comprehensive color normalization including borders and CSS variable overrides in html2canvas onclone callback
 - [x] Fixed PDF spacing issues in CV Generator - improved margins, padding, and gap consistency across all templates
 - [x] Fixed Arabic text rendering in PDF export - added Arabic font support (Segoe UI, Tahoma) and RTL direction handling for all templates
+- [x] Fixed disconnected Arabic letters in PDF export - replaced html2canvas with dom-to-image-more for better complex text layout support
 
 ## Current Structure
 
@@ -104,3 +105,4 @@ export async function GET() {
 | 2026-03-08 | Fixed CV Generator preview scaling - removed zoom/transform, made responsive with hidden A4 container for PDF |
 | 2026-03-08 | Enhanced PDF export color normalization with border color handling and CSS variable injection |
 | 2026-03-08 | Fixed PDF spacing and Arabic text rendering - improved spacing consistency and added RTL/Arabic font support |
+| 2026-03-09 | Fixed disconnected Arabic letters in PDF export - replaced html2canvas with dom-to-image-more library |
